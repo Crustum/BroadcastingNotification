@@ -1,0 +1,13 @@
+    /**
+     * Get the broadcast representation of the notification
+     *
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity receiving the notification
+     * @return \Crustum\BroadcastingNotification\Message\BroadcastMessage
+     */
+    public function toBroadcast(EntityInterface|AnonymousNotifiable $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'title' => '{{ notificationName }}',
+            'message' => 'You have a new notification',
+        ]);
+    }

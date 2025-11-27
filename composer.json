@@ -1,0 +1,50 @@
+{
+    "name": "crustum/notification-broadcasting",
+    "description": "Broadcasting notification channel for CakePHP Notification plugin",
+    "type": "cakephp-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Evgeny Tomenko",
+            "homepage": "https://github.com/skie"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "crustum/notification": "^1.0",
+        "crustum/broadcasting": "^1.0"
+    },
+    "require-dev": {
+        "cakephp/cakephp": "^5.1",
+        "cakephp/cakephp-codesniffer": "^5.0",
+        "phpunit/phpunit": "^10.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crustum\\BroadcastingNotification\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Crustum\\BroadcastingNotification\\Test\\": "tests/",
+            "TestApp\\": "tests/TestApp/"
+        }
+    },
+    "scripts": {
+        "cs-check": "phpcs -p --standard=phpcs.xml src/ tests/",
+        "cs-fix": "phpcbf --standard=phpcs.xml src/ tests/",
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite=Unit",
+        "test:integration": "phpunit --testsuite=Integration",
+        "test:coverage": "phpunit --coverage-html coverage",
+        "stan": "tools/phpstan analyse src/",
+        "psalm": "tools/psalm --show-info=false",
+        "stan-tests": "tools/phpstan analyze -c tests/phpstan.neon",
+        "stan-baseline": "tools/phpstan --generate-baseline"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
