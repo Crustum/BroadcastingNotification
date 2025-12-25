@@ -86,9 +86,9 @@ PUSHER_APP_CLUSTER=us2
 <a name="ui-widget"></a>
 ## UI Widget (Real-time Notification Bell)
 
-The Broadcasting plugin provides a bell element that wraps the base Notification plugin bell and adds real-time WebSocket capabilities via a JavaScript module.
+The Broadcasting plugin provides a bell element that wraps the base Notification plugin bell and adds real-time WebSocket capabilities via a JavaScript module. Supports both Pusher and Mercure broadcasters.
 
-### Hybrid Mode (Database + Broadcasting) - Recommended
+### Hybrid Mode (Database + Broadcasting)
 
 ```php
 <?php $authUser = $this->request->getAttribute('identity'); ?>
@@ -98,6 +98,7 @@ The Broadcasting plugin provides a bell element that wraps the base Notification
         'enablePolling' => true,
         'pollInterval' => 30000,
         'broadcasting' => [
+            'broadcaster' => 'pusher',
             'userId' => $authUser->getIdentifier(),
             'userName' => $authUser->username ?? 'User',
             'pusherKey' => 'app-key',
@@ -109,13 +110,35 @@ The Broadcasting plugin provides a bell element that wraps the base Notification
 </li>
 ```
 
+### Mercure Broadcasting (Hybrid Mode)
+
+```php
+<?php $authUser = $this->request->getAttribute('identity'); ?>
+<li class="nav-item">
+    <?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+        'mode' => 'panel',
+        'enablePolling' => true,
+        'pollInterval' => 30000,
+        'broadcasting' => [
+            'broadcaster' => 'mercure',
+            'userId' => $authUser->getIdentifier(),
+            'userName' => $authUser->username ?? 'User',
+            'mercureUrl' => '/.well-known/mercure',
+            'authEndpoint' => '/broadcasting/auth',
+        ],
+    ]) ?>
+</li>
+```
+
 ### Broadcasting Only (No Database)
 
+**Pusher:**
 ```php
 <?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',
     'enablePolling' => false,
     'broadcasting' => [
+        'broadcaster' => 'pusher',
         'userId' => $authUser->getIdentifier(),
         'userName' => $authUser->username ?? 'User',
         'pusherKey' => env('PUSHER_APP_KEY'),
@@ -126,11 +149,27 @@ The Broadcasting plugin provides a bell element that wraps the base Notification
 ]) ?>
 ```
 
+**Mercure:**
+```php
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+    'mode' => 'panel',
+    'enablePolling' => false,
+    'broadcasting' => [
+        'broadcaster' => 'mercure',
+        'userId' => $authUser->getIdentifier(),
+        'mercureUrl' => env('MERCURE_PUBLIC_URL', '/.well-known/mercure'),
+        'authEndpoint' => '/broadcasting/auth',
+    ],
+]) ?>
+```
+
 
 ### Configuration Options
 
+**Pusher:**
 ```php
 'broadcasting' => [
+    'broadcaster' => 'pusher',
     'userId' => $authUser->getIdentifier(),
     'userName' => $authUser->username ?? 'User',
     'pusherKey' => env('PUSHER_APP_KEY'),
@@ -141,6 +180,20 @@ The Broadcasting plugin provides a bell element that wraps the base Notification
     'debug' => env('APP_DEBUG', false),
 ]
 ```
+
+**Mercure:**
+```php
+'broadcasting' => [
+    'broadcaster' => 'mercure',
+    'userId' => $authUser->getIdentifier(),
+    'userName' => $authUser->username ?? 'User',
+    'mercureUrl' => env('MERCURE_PUBLIC_URL', '/.well-known/mercure'),
+    'authEndpoint' => '/broadcasting/auth',
+]
+```
+
+> [!Note]
+> The `broadcaster` option defaults to `'pusher'` for backward compatibility. Set to `'mercure'` to use Mercure broadcasting.
 
 <a name="prerequisites"></a>
 ## Prerequisites
