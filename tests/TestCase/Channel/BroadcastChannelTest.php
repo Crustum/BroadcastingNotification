@@ -127,4 +127,34 @@ class BroadcastChannelTest extends TestCase
 
         $this->assertEquals('TestApp.Model.Entity.Admin.123', $channelName);
     }
+
+    /**
+     * Test that static getNotifiableChannelName generates correct channel name
+     *
+     * @return void
+     */
+    public function testGetNotifiableChannelNameStaticGeneratesCorrectName(): void
+    {
+        $entity = new Entity(['id' => 789]);
+        $entity->setSource('Users');
+
+        $channelName = BroadcastChannel::getNotifiableChannelName($entity);
+
+        $this->assertEquals('Cake.ORM.Entity.789', $channelName);
+    }
+
+    /**
+     * Test that static getNotifiableChannelName uses receivesBroadcastNotificationsOn
+     *
+     * @return void
+     */
+    public function testGetNotifiableChannelNameStaticUsesReceivesBroadcastNotificationsOn(): void
+    {
+        $user = new User(['id' => 999]);
+        $user->setSource('Users');
+
+        $channelName = BroadcastChannel::getNotifiableChannelName($user);
+
+        $this->assertEquals('users.999', $channelName);
+    }
 }

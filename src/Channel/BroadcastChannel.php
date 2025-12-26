@@ -127,16 +127,19 @@ class BroadcastChannel implements ChannelInterface
     }
 
     /**
-     * Get the default notification channel name for the notifiable entity
+     * Get the default notification channel name for the notifiable entity (static version)
      *
      * Generates a private channel name using Laravel's pattern:
      * - First checks for receivesBroadcastNotificationsOn() method on entity
      * - Falls back to {ClassName}.{id} format (e.g., "App.Model.Entity.User.123")
      *
+     * This static method can be used by other services (e.g., NotificationUI) to get
+     * the channel name without instantiating BroadcastChannel.
+     *
      * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity receiving the notification
      * @return string The channel name
      */
-    protected function getNotifiableChannel(EntityInterface|AnonymousNotifiable $notifiable): string
+    public static function getNotifiableChannelName(EntityInterface|AnonymousNotifiable $notifiable): string
     {
         if ($notifiable instanceof AnonymousNotifiable) {
             $route = $notifiable->routeNotificationFor('broadcast', null);
@@ -159,5 +162,20 @@ class BroadcastChannel implements ChannelInterface
         $primaryKeyValue = $notifiable->get($primaryKeyName);
 
         return "{$className}.{$primaryKeyValue}";
+    }
+
+    /**
+     * Get the default notification channel name for the notifiable entity
+     *
+     * Generates a private channel name using Laravel's pattern:
+     * - First checks for receivesBroadcastNotificationsOn() method on entity
+     * - Falls back to {ClassName}.{id} format (e.g., "App.Model.Entity.User.123")
+     *
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity receiving the notification
+     * @return string The channel name
+     */
+    protected function getNotifiableChannel(EntityInterface|AnonymousNotifiable $notifiable): string
+    {
+        return static::getNotifiableChannelName($notifiable);
     }
 }
