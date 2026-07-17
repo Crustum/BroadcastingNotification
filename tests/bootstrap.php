@@ -4,6 +4,7 @@ declare(strict_types=1);
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Log\Engine\FileLog;
 use Cake\Log\Log;
 use Cake\TestSuite\Fixture\SchemaLoader;
 
@@ -52,13 +53,13 @@ $loader->loadInternalFile(TESTS . 'schema.php');
 
 Log::setConfig([
     'debug' => [
-        'engine' => 'Cake\Log\Engine\FileLog',
+        'engine' => FileLog::class,
         'levels' => ['notice', 'info', 'debug'],
         'file' => 'debug',
         'path' => TMP,
     ],
     'error' => [
-        'engine' => 'Cake\Log\Engine\FileLog',
+        'engine' => FileLog::class,
         'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
         'file' => 'error',
         'path' => TMP,

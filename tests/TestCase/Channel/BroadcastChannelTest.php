@@ -58,7 +58,6 @@ class BroadcastChannelTest extends TestCase
 
         $reflection = new ReflectionClass($channel);
         $method = $reflection->getMethod('getEventName');
-        $method->setAccessible(true);
 
         $eventName = $method->invoke($channel, $notification);
 
@@ -79,7 +78,6 @@ class BroadcastChannelTest extends TestCase
 
         $reflection = new ReflectionClass($channel);
         $method = $reflection->getMethod('getNotifiableChannel');
-        $method->setAccessible(true);
 
         $channelName = $method->invoke($channel, $entity);
 
@@ -100,7 +98,6 @@ class BroadcastChannelTest extends TestCase
 
         $reflection = new ReflectionClass($channel);
         $method = $reflection->getMethod('getNotifiableChannel');
-        $method->setAccessible(true);
 
         $channelName = $method->invoke($channel, $user);
 
@@ -121,7 +118,6 @@ class BroadcastChannelTest extends TestCase
 
         $reflection = new ReflectionClass($channel);
         $method = $reflection->getMethod('getNotifiableChannel');
-        $method->setAccessible(true);
 
         $channelName = $method->invoke($channel, $user);
 

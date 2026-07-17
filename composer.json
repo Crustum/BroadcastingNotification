@@ -17,6 +17,7 @@
     "require-dev": {
         "cakephp/cakephp": "^5.1",
         "cakephp/cakephp-codesniffer": "^5.0",
+        "rector/rector": "^2.5",
         "phpunit/phpunit": "^10.1"
     },
     "autoload": {
@@ -39,6 +40,8 @@
         "test:coverage": "phpunit --coverage-html coverage",
         "stan": "tools/phpstan analyse src/",
         "psalm": "tools/psalm --show-info=false",
+        "rector-check": "vendor/bin/rector process --dry-run",
+        "rector-fix": "vendor/bin/rector process",
         "stan-tests": "tools/phpstan analyze -c tests/phpstan.neon",
         "stan-baseline": "tools/phpstan --generate-baseline"
     },

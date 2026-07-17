@@ -18,6 +18,7 @@
     - [Queue Configuration](#queue-configuration)
 - [Listening for Broadcast Notifications](#listening-for-broadcast-notifications)
     - [Using Laravel Echo](#using-laravel-echo)
+    - [Using React, Vue, or Svelte](#using-react-vue-or-svelte)
     - [Notification Format](#notification-format)
 - [Combining with Other Channels](#combining-with-other-channels)
 - [Testing](#testing)
@@ -343,6 +344,9 @@ By default, notifications broadcast to a private channel using the pattern `{Ent
 
 You can customize the channel by overriding the `broadcastOn()` method as shown above.
 
+> [!NOTE]
+> Echo must subscribe to the **same** channel name the notification broadcasts on. Default → `App.Model.Entity.User.{id}` (NotificationUI uses this). Custom `broadcastOn()` like `users.{id}` → listen on `users.{id}`.
+
 <a name="public-channels"></a>
 ### Public Channels
 
@@ -453,6 +457,7 @@ window.Echo = new Echo({
 });
 
 // Listen for notifications on a private channel
+// Matches custom broadcastOn('users.{id}') above; for default FQCN use App.Model.Entity.User.${userId}
 Echo.private(`users.${userId}`)
     .notification((notification) => {
         console.log(notification.type);
@@ -461,6 +466,66 @@ Echo.private(`users.${userId}`)
         // Display notification to user
         displayNotification(notification);
     });
+```
+
+<a name="using-react-vue-or-svelte"></a>
+### Using React, Vue, or Svelte
+
+Laravel Echo includes React, Vue, and Svelte hooks that make it painless to listen for notifications. Invoke the `useEchoNotification` hook; it leaves the channel when the consuming component is unmounted. Pass the same channel name you broadcast on (see note under [Private Channels](#private-channels)):
+
+::: code-group
+
+```js [React]
+import { useEchoNotification } from "@laravel/echo-react";
+
+useEchoNotification(
+    `users.${userId}`,
+    (notification) => {
+        console.log(notification.type);
+    },
+);
+```
+
+```vue [Vue]
+<script setup lang="ts">
+import { useEchoNotification } from "@laravel/echo-vue";
+
+useEchoNotification(
+    `users.${userId}`,
+    (notification) => {
+        console.log(notification.type);
+    },
+);
+</script>
+```
+
+```svelte [Svelte]
+<script>
+import { useEchoNotification } from "@laravel/echo-svelte";
+
+useEchoNotification(
+    `users.${userId}`,
+    (notification) => {
+        console.log(notification.type);
+    },
+);
+</script>
+```
+
+:::
+
+By default, the hook listens to all notifications. To filter by type, pass a string or array of notification class names as the third argument:
+
+```js [React]
+import { useEchoNotification } from "@laravel/echo-react";
+
+useEchoNotification(
+    `users.${userId}`,
+    (notification) => {
+        console.log(notification.type);
+    },
+    'App.Notification.OrderShipped',
+);
 ```
 
 <a name="notification-format"></a>

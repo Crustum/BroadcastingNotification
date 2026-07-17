@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Crustum\BroadcastingNotification\Channel;
 
 use Cake\Datasource\EntityInterface;
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Crustum\Broadcasting\Broadcasting;
 use Crustum\Broadcasting\Channel\PrivateChannel;
 use Crustum\BroadcastingNotification\Message\BroadcastMessage;
@@ -19,9 +19,14 @@ use Crustum\Notification\Notification;
  * Does NOT store in database - only broadcasts to WebSocket/Pusher channels.
  *
  * Integrates with Crustum/Broadcasting plugin to send real-time notifications.
+ *
+ * @uses \Cake\ORM\Locator\LocatorAwareTrait
+ * @phpstan-consistent-constructor
  */
 class BroadcastChannel implements ChannelInterface
 {
+    use LocatorAwareTrait;
+
     /**
      * Configuration for the channel
      *
@@ -66,7 +71,7 @@ class BroadcastChannel implements ChannelInterface
             ->event($this->getEventName($notification))
             ->data(array_merge($data, [
                 'id' => $notification->getId(),
-                'type' => get_class($notification),
+                'type' => $notification::class,
             ]));
 
         $queueName = null;
@@ -121,7 +126,7 @@ class BroadcastChannel implements ChannelInterface
             }
         }
 
-        $className = get_class($notification);
+        $className = $notification::class;
 
         return str_replace('\\', '.', $className);
     }
@@ -141,27 +146,7 @@ class BroadcastChannel implements ChannelInterface
      */
     public static function getNotifiableChannelName(EntityInterface|AnonymousNotifiable $notifiable): string
     {
-        if ($notifiable instanceof AnonymousNotifiable) {
-            $route = $notifiable->routeNotificationFor('broadcast', null);
-
-            return $route ?? 'anonymous';
-        }
-
-        if (method_exists($notifiable, 'receivesBroadcastNotificationsOn')) {
-            return $notifiable->receivesBroadcastNotificationsOn();
-        }
-
-        $className = str_replace('\\', '.', get_class($notifiable));
-        $table = TableRegistry::getTableLocator()->get($notifiable->getSource());
-        $primaryKeyName = $table->getPrimaryKey();
-
-        if (is_array($primaryKeyName)) {
-            $primaryKeyName = $primaryKeyName[0];
-        }
-
-        $primaryKeyValue = $notifiable->get($primaryKeyName);
-
-        return "{$className}.{$primaryKeyValue}";
+        return (new static())->resolveNotifiableChannelName($notifiable);
     }
 
     /**
@@ -176,6 +161,37 @@ class BroadcastChannel implements ChannelInterface
      */
     protected function getNotifiableChannel(EntityInterface|AnonymousNotifiable $notifiable): string
     {
-        return static::getNotifiableChannelName($notifiable);
+        return $this->resolveNotifiableChannelName($notifiable);
+    }
+
+    /**
+     * Resolve the private channel name for a notifiable entity
+     *
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable The entity receiving the notification
+     * @return string The channel name
+     */
+    protected function resolveNotifiableChannelName(EntityInterface|AnonymousNotifiable $notifiable): string
+    {
+        if ($notifiable instanceof AnonymousNotifiable) {
+            $route = $notifiable->routeNotificationFor('broadcast');
+
+            return $route ?? 'anonymous';
+        }
+
+        if (method_exists($notifiable, 'receivesBroadcastNotificationsOn')) {
+            return $notifiable->receivesBroadcastNotificationsOn();
+        }
+
+        $className = str_replace('\\', '.', $notifiable::class);
+        $table = $this->getTableLocator()->get($notifiable->getSource());
+        $primaryKeyName = $table->getPrimaryKey();
+
+        if (is_array($primaryKeyName)) {
+            $primaryKeyName = $primaryKeyName[0];
+        }
+
+        $primaryKeyValue = $notifiable->get($primaryKeyName);
+
+        return "{$className}.{$primaryKeyValue}";
     }
 }
